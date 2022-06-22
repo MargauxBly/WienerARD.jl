@@ -7,8 +7,10 @@ using Random, Distributions, DataFrames
 # using StatsBase
 # using StatsPlots
 # using Ipopt
-include("model.jl")
+export Model, PeriodicMaintenancePolicy
+export simulate
 include("maintenance_policy.jl")
+include("model.jl")
 include("simulate.jl")
 include("contrast.jl")
 end

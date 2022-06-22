@@ -1,4 +1,37 @@
-function simulate(model::Model,n::Int64,p::Float64)::DataFrame
+function simulate(model::Model,n::Int64,p::Int64;δ=1.0)::DataFrame
+    tau_periode=model.mp.τ
+    Δt=p*δ
+
+     Xt=zeros(n,2)
+     
+     τ_mp=tau_periode
+     Xt1, Xt2=0.0, 0.0
+     t=0.0
+     time=zeros(n)
+     for i in 2:n
+        t += Δt
+        time[i]=t
+        Δy = ΔX(model,Δt)
+        Xt1 += Δy[1]
+        Xt2 += Δy[2] 
+
+        if  τ_mp < t #min temps
+            τ_mp += tau_periode
+            Xt1 -= model.mp.ρ*(Xt2-Xt[i-1,2])
+        end
+
+        Xt[i,1]=Xt1
+        Xt[i,2]=Xt2
+     end
+     
+    return DataFrame(Time=time,Degradation=Xt[:,1])
+end
+
+
+
+
+
+function simulate2(model::Model,n::Int64,p::Int64)::DataFrame
     tau_periode=model.mp.τ
     nb_maint=floor(Int64,(n - 1) / (tau_periode + 1))
     n=n-nb_maint
