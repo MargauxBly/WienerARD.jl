@@ -4,5 +4,5 @@ mutable struct Model
     σ21::Float64
     σ22::Float64
     r::Float64
-    ρ::Float64
+    mp::PeriodicMaintenancePolicy
 end
