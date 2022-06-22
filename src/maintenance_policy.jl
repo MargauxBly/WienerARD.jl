@@ -1,0 +1,3 @@
+abstract type AbstractMaintenancePolicy end
+
+mutable struct PeriodicMaintenancePolicy end
