@@ -1,5 +1,5 @@
 using WienerARD
 
-m=Model(2,3,4,5,.2,PeriodicMaintenancePolicy(.2,12))
-
-@run df=simulate(m,100,1)
+m=Model(2,3,4,5,.7,PeriodicMaintenancePolicy(.7,3.0))
+ΔX(m, 1)
+df=simulate(m,100,1.0)
