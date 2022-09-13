@@ -4,26 +4,27 @@ function simulate(model::Model,n::Int64,period::Int64;δ=1.0)::DataFrame
             Δt=period*δ
             nb_mp=Int(floor((n - 1) / (model.mp.period + 1)))
             n_real=n-nb_mp
-            #time=range(start=0,length=n_real,step=period)
             Xt=zeros(n_real,2)
             Xt_mp=zeros(nb_mp+1,2) #nb maintenance + 0
             time=zeros(n)
             Yt=zeros(n)
-            j , t , k = 1, time[1] * δ  , 2
+            j , t , k = 2, 0  , 2
             Xt1, Xt2 = 0.0 , 0.0      
             for i in 2:n_real
                 t += Δt
 
                 if  τ <= t #maintenance
                     ΔX12 = ΔX(model, τ - t + Δt)
-                    j+=1
-                    time[j]=t
+                    
+                    
                     Xt_mp[k,1]=Xt1+ΔX12[1]
                     Xt_mp[k,2]=Xt2+ΔX12[2]
 
+                    time[j]=τ
                     Yt[j]= Xt_mp[k,1]-model.mp.ρ*(Xt_mp[k,2] - Xt_mp[k-1,2])
                     τ += period_mp
-                    
+                    k+=1
+                    j+=1
                 end
 
                 ΔX12 = ΔX(model,Δt)
