@@ -13,7 +13,8 @@ function simulate(model::Model,n::Int64,period::Int64;δ=1.0)::DataFrame
             for i in 2:n_real
                 
 
-                if  τ < t #maintenance
+                if  τ <= t #maintenance
+                    print("$τ, $t, $Δt")
                     ΔX12 = ΔX(model, τ - t + Δt)
                     
                     
@@ -21,12 +22,15 @@ function simulate(model::Model,n::Int64,period::Int64;δ=1.0)::DataFrame
                     Xt_mp[k,2]=Xt2+ΔX12[2]
 
                     time[j]=τ
-                    Yt[j]= Xt_mp[k,1]-model.mp.ρ*(Xt_mp[k,2] - Xt_mp[k-1,2])
+                    Yt[j]=Xt_mp[k,1]
+
+                    time[j+1]=t
+                    Yt[j+1]= Xt_mp[k,1]-model.mp.ρ*(Xt_mp[k,2] - Xt_mp[k-1,2])
                     τ += period_mp
                     k+=1
 
-                    ΔX12 = ΔX(model, t -τ)
-                    time[j+1]=t
+                    ΔX12 = ΔX(model, t-τ)
+                    
                     Yt[j+1]=Yt[j]+ΔX12[1]
 
                     j+=2
