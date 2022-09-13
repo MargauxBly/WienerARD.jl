@@ -2,26 +2,38 @@ function simulate(model::Model,n::Int64,period::Int64;δ=1.0)::DataFrame
             period_mp=model.mp.period*δ
             τ = period_mp
             Δt=period*δ
-            nb_maint=floor((n - 1) / (model.mp.period + 1))
-            n_real=n-Int(nb_maint)
-            time=range(start=0,length=n_real,step=period)
+            nb_mp=floor((n - 1) / (model.mp.period + 1))
+            n_real=n-Int(nb_mp)
+            #time=range(start=0,length=n_real,step=period)
             Xt=zeros(n_real,2)
+            Xt_mp=zeros(nb_mp+1,2) #nb maintenance + 0
+            time=zeros(n)
             Yt=zeros(n)
-            j , t = 1, time[1] * δ 
+            j , t , k = 1, time[1] * δ  , 2
             Xt1, Xt2 = 0.0 , 0.0      
             for i in 2:n_real
-                t=time[i]*δ
+                t += Δt
+
+                if  τ <= t #maintenance
+                    ΔX12 = ΔX(model, τ - t + Δt)
+                    j+=1
+                    time[j]=t
+                    Xt_mp[k,1]=Xt1+ΔX12[1]
+                    Xt_mp[k,2]=Xt2+ΔX12[2]
+
+                    Yt[j]= Xt_mp[k,1]-model.mp.ρ*(Xt_mp[k,2]-(Xt_mp[k-1,2])
+                    τ += period_mp
+                    
+                end
+
                 ΔX12 = ΔX(model,Δt)
                 Xt1 += ΔX12[1]
                 Xt2 += ΔX12[2] 
                 Xt[i,1]=Xt1
                 Xt[i,2]=Xt2
+                time[j]=t
                 Yt[j]=Xt1
-                if  τ == t #maintenance
-                    τ += model.mp.period
-                    j+=1
-                    Yt[j]= Xt1-model.mp.ρ*(Xt2-Xt[i-(model.mp.period+1),2])
-                end
+                
                 j+=1
                 
             end
