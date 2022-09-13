@@ -7,7 +7,7 @@ using Random, Distributions, DataFrames
 # using StatsBase
 # using StatsPlots
 # using Ipopt
-export Model, PeriodicMaintenancePolicy
+export Model, PeriodicMaintenancePolicy, ΔX
 export simulate
 include("maintenance_policy.jl")
 include("model.jl")

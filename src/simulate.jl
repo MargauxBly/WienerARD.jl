@@ -1,13 +1,15 @@
-function simulate(model::Model,n::Int64,p::Float64)::DataFrame
-            τ=Model.mp.τ_periode*p
-            Δt=p
-            nb_maint=floor((n - 1) / (Model.mp.τ_periode + 1))
-            n=n-Int(nb_maint)
-            time<-range(start=0,length=n,step=p)
-            Xt=DataFrame(Xt1=0.0,Xt2=0.0)
-            Yt=[0.0]
-            i=1 ;  j=1 ; t=time[1]        
-            for i in 2:n
+function simulate(model::Model,n::Int64,period::Float64;δ=1.0)::DataFrame
+            τ=model.mp.period*δ
+
+            Δt=period*δ
+            nb_maint=floor((n - 1) / (model.mp.period + 1))
+            n_real=n-Int(nb_maint)
+            time=range(start=0,length=n_real,step=p)
+            Xt=zeros(n_real,2)
+            Yt=zeros(n)
+            j , t = 1, time[1]  
+            Xt1, Xt2 = 0.0 , 0.0      
+            for i in 2:n_real
                 t=time[i]
                 ΔX12 = ΔX(model,Δt)
                 Xt1 += ΔX12[1]
@@ -18,7 +20,7 @@ function simulate(model::Model,n::Int64,p::Float64)::DataFrame
                 if  τ == t #maintenance
                     τ += τ
                     j+=1
-                    Yt[j]= Xt1-model.mp.ρ*(Xt2-Xt[i-(Model.mp.τ_periode+1),2])
+                    Yt[j]= Xt1-model.mp.ρ*(Xt2-Xt[i-(model.mp.period+1),2])
                 end
                 j+=1
                 
