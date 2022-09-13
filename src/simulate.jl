@@ -2,8 +2,8 @@ function simulate(model::Model,n::Int64,period::Int64;δ=1.0)::DataFrame
             period_mp=model.mp.period*δ
             τ = period_mp
             Δt=period*δ
-            nb_mp=floor((n - 1) / (model.mp.period + 1))
-            n_real=n-Int(nb_mp)
+            nb_mp=Int(floor((n - 1) / (model.mp.period + 1)))
+            n_real=n-nb_mp
             #time=range(start=0,length=n_real,step=period)
             Xt=zeros(n_real,2)
             Xt_mp=zeros(nb_mp+1,2) #nb maintenance + 0
@@ -21,7 +21,7 @@ function simulate(model::Model,n::Int64,period::Int64;δ=1.0)::DataFrame
                     Xt_mp[k,1]=Xt1+ΔX12[1]
                     Xt_mp[k,2]=Xt2+ΔX12[2]
 
-                    Yt[j]= Xt_mp[k,1]-model.mp.ρ*(Xt_mp[k,2]-(Xt_mp[k-1,2])
+                    Yt[j]= Xt_mp[k,1]-model.mp.ρ*(Xt_mp[k,2] - Xt_mp[k-1,2])
                     τ += period_mp
                     
                 end
