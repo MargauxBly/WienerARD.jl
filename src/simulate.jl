@@ -14,7 +14,7 @@ function simulate(model::Model,n::Int64,period::Int64;δ=1.0)::DataFrame
             for i in 2:n
                 
                 if  (t-Δt < τ) & (τ < t)
-                    println("($(t-Δt) < $τ) & ($τ < $t)")
+                    #println("($(t-Δt) < $τ) & ($τ < $t)")
                     # between t-Δt and τ
                     ΔX12 = ΔX(model, τ - t + Δt)
                                        
@@ -43,13 +43,13 @@ function simulate(model::Model,n::Int64,period::Int64;δ=1.0)::DataFrame
                     Xt2 += ΔX12[2] 
                     Xt[i,1]=Xt1
                     Xt[i,2]=Xt2
-                    println("$i: j=$j k=$k $(n+3*n_mp)")
+                    #println("$i: j=$j k=$k $(n+3*n_mp)")
                     time[j]=t
                     Yt[j]=Xt1
                     j += 1
                     if τ==t
                         time[j]=t
-                        Yt[j]= Xt[i,1]-model.mp.ρ*(Xt[i,2] - Xt[i-1,2])
+                        Yt[j]= Xt[i,1]-model.mp.ρ*(Xt[i,2] - Xt[i-model.mp.period,2])
                         j += 1
                         τ += period_mp
                     end
