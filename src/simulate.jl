@@ -2,59 +2,64 @@ function simulate(model::Model,n::Int64,period::Int64;δ=1.0)::DataFrame
             period_mp=model.mp.period*δ
             τ = period_mp
             Δt=period*δ
-            nb_mp=Int(floor((n - 1) / (model.mp.period + 1)))
-            n_real=n-nb_mp
-            Xt=zeros(n_real,2)
-            Xt_mp=zeros(nb_mp+1,2) #nb maintenance + 0
-            time=zeros(n)
-            Yt=zeros(n)
+            n_mp=Int(floor((n*period ) / (model.mp.period )))
+            n_real=n-n_mp
+            Xt=zeros(n,2)
+            Xt_mp=zeros(n_mp+1,2) #nb maintenance + 0
+            time=zeros(n+2*n_mp)
+            Yt=zeros(n+2*n_mp)
             j , t , k = 2, Δt  , 2
             Xt1, Xt2 = 0.0 , 0.0      
-            for i in 2:n_real
-                
 
-                if  τ <= t #maintenance
-                    print("$τ, $t, $Δt")
+            for i in 2:n
+                
+                if  (t-Δt < τ) & (τ < t)
+                    println("($(t-Δt) < $τ) & ($τ < $t)")
+                    # between t-Δt and τ
                     ΔX12 = ΔX(model, τ - t + Δt)
-                    
-                    
+                                       
                     Xt_mp[k,1]=Xt1+ΔX12[1]
                     Xt_mp[k,2]=Xt2+ΔX12[2]
 
                     time[j]=τ
                     Yt[j]=Xt_mp[k,1]
 
-                    time[j+1]=t
-                    Yt[j+1]= Xt_mp[k,1]-model.mp.ρ*(Xt_mp[k,2] - Xt_mp[k-1,2])
-                    τ += period_mp
+                    ## reduction
+                    time[j+1]=τ
+                    Yt[j+1]= Xt_mp[k,1]-model.mp.ρ*(Xt_mp[k,2] - Xt_mp[k-1,2])                  
                     k+=1
 
+                    # between τ and t
                     ΔX12 = ΔX(model, t-τ)
-                    
-                    Yt[j+1]=Yt[j]+ΔX12[1]
+                    time[j+2]=t
+                    Yt[j+2]=Yt[j]+ΔX12[1]
 
-                    j+=2
-
+                    j+=3
+                    τ += period_mp
                 else
 
-                ΔX12 = ΔX(model,Δt)
-                Xt1 += ΔX12[1]
-                Xt2 += ΔX12[2] 
-                Xt[i,1]=Xt1
-                Xt[i,2]=Xt2
-                time[j]=t
-                Yt[j]=Xt1
-                end
-
-                
-                
-                j+=1
+                    ΔX12 = ΔX(model,Δt)
+                    Xt1 += ΔX12[1]
+                    Xt2 += ΔX12[2] 
+                    Xt[i,1]=Xt1
+                    Xt[i,2]=Xt2
+                    println("$i: j=$j k=$k $(n+3*n_mp)")
+                    time[j]=t
+                    Yt[j]=Xt1
+                    j += 1
+                    if τ==t
+                        time[j]=t
+                        Yt[j]= Xt[i,1]-model.mp.ρ*(Xt[i,2] - Xt[i-1,2])
+                        j += 1
+                        τ += period_mp
+                    end
+                end               
 
                 t += Δt
             end
         
         
-        return DataFrame(Time=time,Degradation=Yt)
+        return DataFrame(Time=time[1:n],Degradation=Yt[1:n])
     end
     
 
