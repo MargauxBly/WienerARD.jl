@@ -12,7 +12,8 @@ export simulate
 include("maintenance_policy.jl")
 include("model.jl")
 include("simulate.jl")
-include("contrast.jl")
+# include("contrast.jl")
+include("mle.jl")
 end
 
 
